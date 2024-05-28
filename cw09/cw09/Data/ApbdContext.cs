@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using cw09.Models;
 
-namespace cw09;
+namespace cw09.Data;
 
 public partial class ApbdContext : DbContext
 {

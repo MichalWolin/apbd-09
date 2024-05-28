@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace cw09;
+namespace cw09.Models;
 
 public partial class Trip
 {
