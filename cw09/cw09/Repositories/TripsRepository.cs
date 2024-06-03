@@ -1,4 +1,5 @@
 ﻿using cw09.Data;
+using cw09.Models;
 using cw09.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,5 +45,22 @@ public class TripsRepository : ITripsRepository
             PageSize = pageSize.Value,
             Trips = trips
         };
+    }
+
+    public async Task<bool> DoesClientHaveTrip(int id)
+    {
+        var trips = await _context.ClientTrips.Where(e => e.IdClient == id).ToListAsync();
+
+        return trips.Count > 0;
+    }
+
+    public Task DeleteClient(int id)
+    {
+        _context.Clients.Remove(new Client()
+        {
+            IdClient = id
+        });
+
+        return _context.SaveChangesAsync();
     }
 }

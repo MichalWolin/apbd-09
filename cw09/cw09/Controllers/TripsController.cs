@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 namespace cw09.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
 public class TripsController : ControllerBase
 {
     private readonly ITripsRepository _tripsRepository;
@@ -17,7 +16,7 @@ public class TripsController : ControllerBase
         _tripsRepository = tripsRepository;
     }
 
-    [HttpGet]
+    [HttpGet("api/trips")]
     public async Task<IActionResult> GetTrips(string? query, int? pageNum, int? pageSize)
     {
         pageSize ??= 10;
@@ -30,5 +29,20 @@ public class TripsController : ControllerBase
             return BadRequest("Page number must be greater than 0");
 
         return Ok(await _tripsRepository.GetTrips(query, pageNum, pageSize));
+    }
+
+    [HttpDelete("api/clients/{id}")]
+    public async Task<IActionResult> DeleteClient(int id)
+    {
+        if (await _tripsRepository.DoesClientHaveTrip(id))
+            return BadRequest("Client has existing trips!");
+
+        return Ok(_tripsRepository.DeleteClient(id));
+    }
+
+    [HttpPost("api/trips/{idTrip}/clients")]
+    public async Task<IActionResult> AddClientToTrip()
+    {
+        return Ok();
     }
 }
