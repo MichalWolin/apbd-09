@@ -1,4 +1,6 @@
 ﻿using cw09.Data;
+using cw09.Models;
+using cw09.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,30 +10,25 @@ namespace cw09.Controllers;
 [Route("api/[controller]")]
 public class TripsController : ControllerBase
 {
-    private readonly ApbdContext _context;
-    
-    public TripsController(ApbdContext context)
+    private readonly ITripsRepository _tripsRepository;
+
+    public TripsController(ITripsRepository tripsRepository)
     {
-        _context = context;
+        _tripsRepository = tripsRepository;
     }
-    
+
     [HttpGet]
-    public async Task<IActionResult> GetTrips()
+    public async Task<IActionResult> GetTrips(string? query, int? pageNum, int? pageSize)
     {
-        var trips = await _context.Trips.Select(e => new
-            {
-                Name = e.Name,
-                Countries = e.IdCountries.Select(c => new
-                {
-                    Name = c.Name
-                })
-            })
-            .ToListAsync();
+        pageSize ??= 10;
+        pageNum ??= 1;
 
-        var tripsIcnlude = await _context.Trips
-            .Include(e => e.IdCountries)
-            .ToListAsync();
+        if (pageSize <= 0)
+            return BadRequest("Page size must be greater than 0");
 
-        return Ok(trips);
+        if (pageNum <= 0)
+            return BadRequest("Page number must be greater than 0");
+
+        return Ok(await _tripsRepository.GetTrips(query, pageNum, pageSize));
     }
 }

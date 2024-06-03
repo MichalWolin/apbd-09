@@ -1,4 +1,5 @@
 using cw09.Data;
+using cw09.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<ApbdContext>(
     options => options.UseSqlServer("Name=ConnectionStrings:Default"));
+builder.Services.AddScoped<ITripsRepository, TripsRepository>();
 
 var app = builder.Build();
 
