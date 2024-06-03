@@ -1,5 +1,6 @@
 ﻿using cw09.Data;
 using cw09.Models;
+using cw09.Models.DTOs;
 using cw09.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -41,8 +42,19 @@ public class TripsController : ControllerBase
     }
 
     [HttpPost("api/trips/{idTrip}/clients")]
-    public async Task<IActionResult> AddClientToTrip()
+    public async Task<IActionResult> AddClientToTrip(ClientTripDto clientTripDto)
     {
-        return Ok();
+        if (await _tripsRepository.DoesClientAlreadyExist(clientTripDto.Pesel))
+            return BadRequest("Client already exists!");
+
+        if (await _tripsRepository.IsClientAlreadyAssignedToTrip(clientTripDto.Pesel, clientTripDto.IdTrip))
+            return BadRequest("Client is already assigned to this trip!");
+
+        if (!await _tripsRepository.DoesTripExist(clientTripDto.IdTrip))
+            return BadRequest("Trip does not exist!");
+
+        await _tripsRepository.AssignClientToTrip(clientTripDto);
+
+        return Ok(clientTripDto);
     }
 }

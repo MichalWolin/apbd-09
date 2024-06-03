@@ -63,4 +63,42 @@ public class TripsRepository : ITripsRepository
 
         return _context.SaveChangesAsync();
     }
+
+    public async Task<bool> DoesClientAlreadyExist(string pesel)
+    {
+        var client = await _context.Clients.FirstOrDefaultAsync(e => e.Pesel == pesel);
+
+        return client != null;
+    }
+
+    public async Task<bool> IsClientAlreadyAssignedToTrip(string pesel, int idTrip)
+    {
+        var result = await _context.ClientTrips
+            .FirstOrDefaultAsync(e => e.IdClientNavigation.Pesel == pesel && e.IdTrip == idTrip);
+
+        return result != null;
+    }
+
+    public async Task<bool> DoesTripExist(int idTrip)
+    {
+        var result = await _context.Trips.FirstOrDefaultAsync(e => e.IdTrip == idTrip);
+
+        if (result == null)
+            return false;
+
+        var isDateValid = result.DateFrom > DateTime.Now;
+
+        return isDateValid;
+    }
+
+    public async Task AssignClientToTrip(ClientTripDto clientTripDto)
+    {
+        await _context.ClientTrips.AddAsync(new ClientTrip()
+        {
+            IdClient = _context.Clients.First(e => e.Pesel == clientTripDto.Pesel).IdClient,
+            IdTrip = clientTripDto.IdTrip,
+            RegisteredAt = DateTime.Now,
+            PaymentDate = clientTripDto.PaymentDate
+        });
+    }
 }
